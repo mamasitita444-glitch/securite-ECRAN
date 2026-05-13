@@ -3,27 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Administration - Sécurité</title>
+<title>Administration - Sécurité SGM</title>
 <style>
   * { box-sizing: border-box; }
   body {
     font-family: Arial, sans-serif;
-    background: #f0f0f0;
+    background: #f0f0f2;
     margin: 0;
     padding: 20px;
     color: #222;
   }
   .container {
-    max-width: 650px;
+    max-width: 700px;
     margin: 0 auto;
     background: #fff;
     padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-top: 5px solid #E5621D;
   }
-  h1 { margin-top: 0; }
+  h1 { margin-top: 0; color: #1a1a1a; }
+  h2 { font-size: 18px; margin-top: 0; color: #E5621D; }
   .current {
-    background: #eef;
+    background: #fff8f3;
+    border-left: 4px solid #E5621D;
     padding: 15px;
     border-radius: 4px;
     margin-bottom: 25px;
@@ -44,22 +47,22 @@
   }
   .btn-today:hover { background: #a93226; }
   .section {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #e0e0e0;
     padding-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
   }
   label { display: block; margin-bottom: 8px; font-weight: bold; }
-  input[type="date"], input[type="number"] {
+  input[type="date"], input[type="number"], input[type="text"], input[type="password"] {
     width: 100%;
     padding: 10px;
-    font-size: 16px;
-    border: 1px solid #999;
+    font-size: 15px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
   }
   .btn-save {
-    padding: 12px 24px;
-    font-size: 15px;
+    padding: 10px 20px;
+    font-size: 14px;
     background: #2980b9;
     color: white;
     border: none;
@@ -67,21 +70,34 @@
     cursor: pointer;
   }
   .btn-save:hover { background: #1f618d; }
-  .btn-download {
+  .btn-publish {
     display: block;
     width: 100%;
-    margin-top: 25px;
+    margin-top: 20px;
     padding: 18px;
     font-size: 17px;
     font-weight: bold;
-    background: #27ae60;
+    background: #E5621D;
     color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
   }
-  .btn-download:hover { background: #1e8449; }
-  .btn-download:disabled { background: #95a5a6; cursor: not-allowed; }
+  .btn-publish:hover { background: #c4521a; }
+  .btn-publish:disabled { background: #95a5a6; cursor: not-allowed; }
+  .btn-download {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    font-size: 14px;
+    background: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .btn-download:hover { background: #4b5563; }
   .msg {
     margin-top: 20px;
     padding: 12px;
@@ -91,15 +107,25 @@
   }
   .msg.ok { background: #d4edda; color: #155724; display: block; }
   .msg.err { background: #f8d7da; color: #721c24; display: block; }
+  .msg.info { background: #d1ecf1; color: #0c5460; display: block; }
   .help {
-    margin-top: 30px;
+    margin-top: 25px;
     padding: 15px;
     background: #fff8dc;
     border-left: 4px solid #f39c12;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.6;
   }
   .help b { color: #c0392b; }
+  .help code {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  .help ol { margin: 8px 0 0 18px; padding: 0; }
+  .help li { margin-bottom: 6px; }
   .preview {
     background: #2c3e50;
     color: #ecf0f1;
@@ -110,14 +136,74 @@
     margin-top: 10px;
     white-space: pre;
   }
+  .config-box {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  .config-box.configured { border-color: #28a745; background: #f0fff4; }
+  .config-status {
+    font-size: 13px;
+    color: #6c757d;
+    margin-bottom: 10px;
+  }
+  .config-status.ok { color: #28a745; font-weight: bold; }
+  details summary {
+    cursor: pointer;
+    font-weight: bold;
+    padding: 5px 0;
+    color: #2980b9;
+  }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>Administration Sécurité</h1>
+  <h1>Administration Sécurité SGM</h1>
 
+  <!-- CONFIGURATION GITHUB -->
+  <div class="config-box" id="configBox">
+    <h2>Configuration GitHub</h2>
+    <div class="config-status" id="configStatus">Non configuré</div>
+    <details id="configDetails">
+      <summary>Configurer le token GitHub (une seule fois)</summary>
+      <div style="margin-top: 15px;">
+        <label for="ghOwner">Propriétaire (owner) :</label>
+        <input type="text" id="ghOwner" placeholder="mamasitita444-glitch" value="mamasitita444-glitch">
+
+        <label for="ghRepo">Nom du dépôt :</label>
+        <input type="text" id="ghRepo" placeholder="securite-ECRAN" value="securite-ECRAN">
+
+        <label for="ghBranch">Branche :</label>
+        <input type="text" id="ghBranch" value="main">
+
+        <label for="ghToken">Token personnel (PAT) :</label>
+        <input type="password" id="ghToken" placeholder="github_pat_...">
+
+        <button class="btn-save" onclick="saveConfig()">Enregistrer la configuration</button>
+        <button class="btn-save" style="background:#dc3545; margin-left:10px;" onclick="clearConfig()">Supprimer</button>
+
+        <div class="help" style="margin-top: 15px;">
+          <b>Comment obtenir un token GitHub :</b>
+          <ol>
+            <li>Va sur <code>github.com/settings/personal-access-tokens/new</code></li>
+            <li>Token name : <code>securite-ECRAN</code> (ou ce que tu veux)</li>
+            <li>Expiration : 1 an (ou "No expiration" si tu veux)</li>
+            <li>Repository access : <b>Only select repositories</b> → sélectionne <code>securite-ECRAN</code></li>
+            <li>Permissions → Repository permissions → <b>Contents</b> : <b>Read and write</b></li>
+            <li>Clique sur <b>Generate token</b> et copie le token (commence par <code>github_pat_</code>)</li>
+            <li>Colle-le ici et enregistre</li>
+          </ol>
+          Le token reste sur ton navigateur (localStorage). Il n'est pas envoyé ailleurs qu'à GitHub.
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- ETAT ACTUEL -->
   <div class="current">
-    Dernier accident enregistré : <b id="currentDate">--/--/----</b><br>
+    Dernier accident : <b id="currentDate">--/--/----</b><br>
     Record : <b id="currentRecord">0</b> jours<br>
     Jours actuels : <b id="currentDays">0</b>
   </div>
@@ -127,7 +213,7 @@
   </button>
 
   <div class="section">
-    <label for="manualDate">Modifier manuellement la date du dernier accident :</label>
+    <label for="manualDate">Modifier la date du dernier accident :</label>
     <input type="date" id="manualDate">
     <button class="btn-save" onclick="setManualDate()">Appliquer cette date</button>
   </div>
@@ -141,32 +227,95 @@
   <div class="section">
     <label>Aperçu du nouveau data.json :</label>
     <div class="preview" id="preview">{}</div>
-    <button class="btn-download" id="btnDownload" onclick="downloadJson()">
-      TÉLÉCHARGER data.json
+
+    <button class="btn-publish" id="btnPublish" onclick="publishToGitHub()">
+      PUBLIER SUR GITHUB (mise à jour instantanée)
+    </button>
+
+    <button class="btn-download" onclick="downloadJson()">
+      Ou télécharger data.json manuellement
     </button>
   </div>
 
   <div id="msg" class="msg"></div>
-
-  <div class="help">
-    <b>Comment publier les changements :</b><br>
-    1. Modifie les champs ci-dessus.<br>
-    2. Clique sur <b>TÉLÉCHARGER data.json</b>.<br>
-    3. Va sur GitHub, ouvre le fichier <code>data.json</code> du repo et remplace-le par celui téléchargé (drag &amp; drop).<br>
-    4. Commit. La pantalla se actualizará en 1-2 minutos automatiquement.
-  </div>
 </div>
 
 <script>
   const DEFAULT_DATA = { ultimo_accidente: "2024-01-15", record: 120 };
   let currentData = { ...DEFAULT_DATA };
+  let currentSha = null;
 
+  // === CONFIGURATION ===
+  function loadConfig() {
+    const raw = localStorage.getItem('gh_config');
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  }
+  function saveConfig() {
+    const cfg = {
+      owner: document.getElementById('ghOwner').value.trim(),
+      repo: document.getElementById('ghRepo').value.trim(),
+      branch: document.getElementById('ghBranch').value.trim() || 'main',
+      token: document.getElementById('ghToken').value.trim(),
+    };
+    if (!cfg.owner || !cfg.repo || !cfg.token) {
+      showMsg("Tous les champs sont obligatoires.", 'err'); return;
+    }
+    localStorage.setItem('gh_config', JSON.stringify(cfg));
+    showMsg("Configuration enregistrée.", 'ok');
+    refreshConfigUI();
+    loadInitial();
+  }
+  function clearConfig() {
+    if (!confirm("Supprimer la configuration GitHub ?")) return;
+    localStorage.removeItem('gh_config');
+    document.getElementById('ghToken').value = '';
+    showMsg("Configuration supprimée.", 'info');
+    refreshConfigUI();
+  }
+  function refreshConfigUI() {
+    const cfg = loadConfig();
+    const box = document.getElementById('configBox');
+    const status = document.getElementById('configStatus');
+    const btn = document.getElementById('btnPublish');
+    if (cfg && cfg.token) {
+      box.classList.add('configured');
+      status.classList.add('ok');
+      status.textContent = `Configuré : ${cfg.owner}/${cfg.repo} (branche ${cfg.branch})`;
+      btn.disabled = false;
+      document.getElementById('configDetails').open = false;
+    } else {
+      box.classList.remove('configured');
+      status.classList.remove('ok');
+      status.textContent = 'Non configuré — sans cela, tu devras télécharger data.json manuellement.';
+      btn.disabled = true;
+      document.getElementById('configDetails').open = true;
+    }
+  }
+
+  // === DONNÉES ===
   async function loadInitial() {
+    const cfg = loadConfig();
     try {
-      const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
-      if (res.ok) currentData = await res.json();
+      if (cfg) {
+        // Lit via API pour avoir la dernière version + SHA
+        const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/data.json?ref=${cfg.branch}`;
+        const res = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${cfg.token}`, 'Accept': 'application/vnd.github+json' }
+        });
+        if (res.ok) {
+          const j = await res.json();
+          currentSha = j.sha;
+          currentData = JSON.parse(atob(j.content.replace(/\n/g, '')));
+        } else {
+          throw new Error('API ' + res.status);
+        }
+      } else {
+        const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) currentData = await res.json();
+      }
     } catch (e) {
-      console.warn('data.json introuvable, défauts utilisés');
+      console.warn('Chargement initial échoué, défauts utilisés', e);
     }
     refresh();
   }
@@ -175,22 +324,16 @@
     const [y, m, d] = iso.split('-');
     return `${d}/${m}/${y}`;
   }
-
   function daysSince(iso) {
     const last = new Date(iso + 'T00:00:00');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return Math.max(0, Math.floor((today - last) / 86400000));
   }
-
   function todayISO() {
     const t = new Date();
-    const y = t.getFullYear();
-    const m = String(t.getMonth() + 1).padStart(2, '0');
-    const d = String(t.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
+    return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
   }
-
   function refresh() {
     document.getElementById('currentDate').textContent = formatFR(currentData.ultimo_accidente);
     document.getElementById('currentRecord').textContent = currentData.record;
@@ -199,53 +342,45 @@
     document.getElementById('recordInput').value = currentData.record;
     document.getElementById('preview').textContent = JSON.stringify(currentData, null, 2);
   }
-
-  function showMsg(text, ok) {
+  function showMsg(text, type) {
     const m = document.getElementById('msg');
     m.textContent = text;
-    m.className = 'msg ' + (ok ? 'ok' : 'err');
-    setTimeout(() => { m.className = 'msg'; }, 5000);
+    m.className = 'msg ' + type;
+    setTimeout(() => { m.className = 'msg'; }, 6000);
   }
 
+  // === ACTIONS ===
   function registerToday() {
     const today = todayISO();
     const currentDays = daysSince(currentData.ultimo_accidente);
     const newRecord = Math.max(currentData.record, currentDays);
     const recordMsg = newRecord > currentData.record ? `\n\nNouveau record : ${newRecord} jours sera enregistré.` : '';
-
     if (!confirm(`Confirmer l'enregistrement d'un accident en date du ${formatFR(today)} ?${recordMsg}`)) return;
-
     currentData.ultimo_accidente = today;
     currentData.record = newRecord;
     refresh();
-    showMsg("Modification appliquée. Pense à télécharger et publier data.json.", true);
+    showMsg("Modification appliquée. Clique sur PUBLIER SUR GITHUB.", 'info');
   }
-
   function setManualDate() {
     const val = document.getElementById('manualDate').value;
-    if (!val) { showMsg("Veuillez choisir une date.", false); return; }
-    if (val > todayISO()) { showMsg("La date ne peut pas être dans le futur.", false); return; }
-
+    if (!val) { showMsg("Veuillez choisir une date.", 'err'); return; }
+    if (val > todayISO()) { showMsg("La date ne peut pas être dans le futur.", 'err'); return; }
     const currentDays = daysSince(currentData.ultimo_accidente);
     const newRecord = Math.max(currentData.record, currentDays);
     const recordMsg = newRecord > currentData.record ? `\n\nNouveau record : ${newRecord} jours sera enregistré.` : '';
-
     if (!confirm(`Confirmer la date du dernier accident : ${formatFR(val)} ?${recordMsg}`)) return;
-
     currentData.ultimo_accidente = val;
     currentData.record = newRecord;
     refresh();
-    showMsg("Modification appliquée. Pense à télécharger et publier data.json.", true);
+    showMsg("Modification appliquée. Clique sur PUBLIER SUR GITHUB.", 'info');
   }
-
   function setRecord() {
     const val = parseInt(document.getElementById('recordInput').value, 10);
-    if (isNaN(val) || val < 0) { showMsg("Valeur invalide.", false); return; }
+    if (isNaN(val) || val < 0) { showMsg("Valeur invalide.", 'err'); return; }
     if (!confirm(`Confirmer le record : ${val} jours ?`)) return;
-
     currentData.record = val;
     refresh();
-    showMsg("Modification appliquée. Pense à télécharger et publier data.json.", true);
+    showMsg("Modification appliquée. Clique sur PUBLIER SUR GITHUB.", 'info');
   }
 
   function downloadJson() {
@@ -257,9 +392,69 @@
     a.download = 'data.json';
     a.click();
     URL.revokeObjectURL(url);
-    showMsg("data.json téléchargé. Publie-le sur GitHub pour mettre à jour l'écran.", true);
+    showMsg("data.json téléchargé.", 'info');
   }
 
+  async function publishToGitHub() {
+    const cfg = loadConfig();
+    if (!cfg) { showMsg("Configure GitHub d'abord.", 'err'); return; }
+    if (!confirm("Publier les modifications sur GitHub ?\nLa pantalla se actualizará en 1-2 minutes.")) return;
+
+    const btn = document.getElementById('btnPublish');
+    btn.disabled = true;
+    btn.textContent = "Publication en cours...";
+
+    try {
+      // S'il manque le SHA, on le récupère
+      if (!currentSha) {
+        const getUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/data.json?ref=${cfg.branch}`;
+        const r = await fetch(getUrl, {
+          headers: { 'Authorization': `Bearer ${cfg.token}`, 'Accept': 'application/vnd.github+json' }
+        });
+        if (r.ok) {
+          const j = await r.json();
+          currentSha = j.sha;
+        }
+      }
+
+      const json = JSON.stringify(currentData, null, 2);
+      const contentB64 = btoa(unescape(encodeURIComponent(json)));
+
+      const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/data.json`;
+      const body = {
+        message: `Update data.json - ${todayISO()}`,
+        content: contentB64,
+        branch: cfg.branch,
+      };
+      if (currentSha) body.sha = currentSha;
+
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${cfg.token}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `HTTP ${res.status}`);
+      }
+
+      const result = await res.json();
+      currentSha = result.content.sha;
+      showMsg("Publié sur GitHub avec succès. La pantalla se actualizará en 1-2 minutes.", 'ok');
+    } catch (e) {
+      showMsg("Erreur : " + e.message, 'err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "PUBLIER SUR GITHUB (mise à jour instantanée)";
+    }
+  }
+
+  refreshConfigUI();
   loadInitial();
 </script>
 </body>
