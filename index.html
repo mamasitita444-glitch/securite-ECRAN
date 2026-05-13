@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jours sans accident - SGM Industry</title>
+<style>
+  :root {
+    --orange: #E5621D;
+    --orange-light: #F58A4B;
+    --grey-bg: #f0f0f2;
+    --grey-panel: #ffffff;
+    --grey-line: #d4d4d8;
+    --grey-text: #6b7280;
+    --white: #1a1a1a;
+    --green: #16a34a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: var(--grey-bg);
+    color: var(--white);
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    overflow: hidden;
+  }
+  body {
+    background:
+      linear-gradient(135deg, rgba(229,98,29,0.06) 0%, transparent 50%, rgba(229,98,29,0.06) 100%),
+      var(--grey-bg);
+    display: grid;
+    grid-template-rows: auto 1fr 22vh;
+    padding: 2vh 2.5vw;
+    gap: 1.8vh;
+  }
+
+  /* HEADER */
+  .header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 2vw;
+    padding-bottom: 1.2vh;
+    border-bottom: 3px solid var(--orange);
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 15%;
+    height: 3px;
+    background: var(--orange);
+  }
+  .logo {
+    height: 7vh;
+    width: auto;
+    object-fit: contain;
+  }
+  .logo-fallback {
+    height: 7vh;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5vw;
+    background: var(--orange);
+    color: var(--white);
+    font-weight: 900;
+    font-size: 2.5vw;
+    letter-spacing: 0.2vw;
+    border-radius: 0.4vw;
+  }
+  .header h1 {
+    font-size: 3.6vw;
+    font-weight: 900;
+    letter-spacing: 0.25vw;
+    color: var(--white);
+    text-align: center;
+    line-height: 1;
+  }
+  .header h1 span { color: var(--orange); }
+  .header-meta {
+    text-align: right;
+    color: var(--grey-text);
+    font-size: 1.2vw;
+    letter-spacing: 0.1vw;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* MAIN */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5vw;
+    min-height: 0;
+  }
+  .counter-panel {
+    background: var(--grey-panel);
+    border-radius: 0.8vw;
+    border: 1px solid var(--grey-line);
+    border-left: 6px solid var(--orange);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2vh 1vw;
+    position: relative;
+    overflow: hidden;
+  }
+  .counter-panel::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(229,98,29,0.10) 0%, transparent 70%);
+  }
+  .days-number {
+    font-size: 13vw;
+    font-weight: 900;
+    line-height: 0.95;
+    color: var(--orange);
+    text-shadow: 0 2px 8px rgba(229,98,29,0.2);
+    position: relative;
+    z-index: 1;
+  }
+  .days-label {
+    font-size: 2.2vw;
+    font-weight: 700;
+    color: var(--white);
+    margin-top: 0.5vh;
+    letter-spacing: 0.4vw;
+    position: relative;
+    z-index: 1;
+  }
+
+  .image-wrapper {
+    background: var(--grey-panel);
+    border-radius: 0.8vw;
+    border: 1px solid var(--grey-line);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .image-wrapper .placeholder {
+    color: #9ca3af;
+    font-size: 1.4vw;
+    text-align: center;
+    padding: 2vw;
+  }
+
+  /* FOOTER */
+  .footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2vw;
+    padding-top: 1.2vh;
+    border-top: 3px solid var(--orange);
+    position: relative;
+  }
+  .footer::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 0;
+    width: 15%;
+    height: 3px;
+    background: var(--orange);
+  }
+  .info-block {
+    background: var(--grey-panel);
+    border-radius: 0.8vw;
+    border: 1px solid var(--grey-line);
+    border-top: 4px solid var(--orange);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 2.5vh 2vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2vh;
+  }
+  .info-label {
+    font-size: 1.7vw;
+    color: var(--grey-text);
+    text-transform: uppercase;
+    letter-spacing: 0.25vw;
+    font-weight: 600;
+  }
+  .info-value {
+    font-size: 4vw;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 1.2vw;
+  }
+  .info-value.record { color: var(--green); }
+  .new-record {
+    background: var(--green);
+    color: var(--grey-bg);
+    padding: 0.6vw 1.2vw;
+    border-radius: 0.5vw;
+    font-size: 1.4vw;
+    font-weight: 900;
+    letter-spacing: 0.1vw;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.06); opacity: 0.92; }
+  }
+</style>
+</head>
+<body>
+  <header class="header">
+    <img class="logo" src="logo.jpg" alt="SGM Industry" onerror="this.outerHTML='<div class=\'logo-fallback\'>SGM</div>';">
+    <h1>JOURS <span>SANS</span> ACCIDENT</h1>
+    <div class="header-meta">Sécurité au travail</div>
+  </header>
+
+  <main class="main">
+    <div class="counter-panel">
+      <div class="days-number" id="days">--</div>
+      <div class="days-label">JOURS</div>
+    </div>
+
+    <div class="image-wrapper">
+      <img src="foto.jpg" alt="SGM Industry" onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\'placeholder\'>foto.jpg<br>(image non trouvée)</div>';">
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="info-block">
+      <div class="info-label">Record</div>
+      <div class="info-value record" id="record">-- jours</div>
+    </div>
+    <div class="info-block">
+      <div class="info-label">Dernier accident</div>
+      <div class="info-value" id="lastDate">--/--/----</div>
+    </div>
+  </footer>
+
+<script>
+  const DEFAULT_DATA = { ultimo_accidente: "2024-01-15", record: 120 };
+
+  async function fetchData() {
+    try {
+      const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    } catch (e) {
+      console.warn('Lecture data.json échouée, valeurs par défaut utilisées', e);
+      return DEFAULT_DATA;
+    }
+  }
+
+  function formatDateFR(isoDate) {
+    const [y, m, d] = isoDate.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function daysSince(isoDate) {
+    const last = new Date(isoDate + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diff = today - last;
+    return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+  }
+
+  async function render() {
+    const data = await fetchData();
+    const days = daysSince(data.ultimo_accidente);
+    const displayedRecord = Math.max(data.record, days);
+    const isNewRecord = days > data.record;
+
+    document.getElementById('days').textContent = days;
+    document.getElementById('lastDate').textContent = formatDateFR(data.ultimo_accidente);
+
+    const recordEl = document.getElementById('record');
+    if (isNewRecord) {
+      recordEl.innerHTML = `<span>${displayedRecord} jours</span><span class="new-record">NOUVEAU RECORD</span>`;
+    } else {
+      recordEl.textContent = `${displayedRecord} jours`;
+    }
+  }
+
+  render();
+  setInterval(render, 60000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) render();
+  });
+
+  setInterval(() => {
+    const now = new Date();
+    if (now.getHours() === 0 && now.getMinutes() === 5) {
+      location.reload();
+    }
+  }, 60000);
+</script>
+</body>
+</html>

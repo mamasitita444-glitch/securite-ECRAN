@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration - Sécurité</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+    color: #222;
+  }
+  .container {
+    max-width: 650px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  h1 { margin-top: 0; }
+  .current {
+    background: #eef;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 25px;
+    font-size: 14px;
+  }
+  .current b { font-size: 16px; }
+  .btn-today {
+    width: 100%;
+    padding: 25px;
+    font-size: 20px;
+    font-weight: bold;
+    background: #c0392b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 30px;
+  }
+  .btn-today:hover { background: #a93226; }
+  .section {
+    border-top: 1px solid #ccc;
+    padding-top: 20px;
+    margin-bottom: 20px;
+  }
+  label { display: block; margin-bottom: 8px; font-weight: bold; }
+  input[type="date"], input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    margin-bottom: 15px;
+  }
+  .btn-save {
+    padding: 12px 24px;
+    font-size: 15px;
+    background: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .btn-save:hover { background: #1f618d; }
+  .btn-download {
+    display: block;
+    width: 100%;
+    margin-top: 25px;
+    padding: 18px;
+    font-size: 17px;
+    font-weight: bold;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .btn-download:hover { background: #1e8449; }
+  .btn-download:disabled { background: #95a5a6; cursor: not-allowed; }
+  .msg {
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: none;
+  }
+  .msg.ok { background: #d4edda; color: #155724; display: block; }
+  .msg.err { background: #f8d7da; color: #721c24; display: block; }
+  .help {
+    margin-top: 30px;
+    padding: 15px;
+    background: #fff8dc;
+    border-left: 4px solid #f39c12;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .help b { color: #c0392b; }
+  .preview {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    margin-top: 10px;
+    white-space: pre;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Administration Sécurité</h1>
+
+  <div class="current">
+    Dernier accident enregistré : <b id="currentDate">--/--/----</b><br>
+    Record : <b id="currentRecord">0</b> jours<br>
+    Jours actuels : <b id="currentDays">0</b>
+  </div>
+
+  <button class="btn-today" onclick="registerToday()">
+    ENREGISTRER UN ACCIDENT AUJOURD'HUI
+  </button>
+
+  <div class="section">
+    <label for="manualDate">Modifier manuellement la date du dernier accident :</label>
+    <input type="date" id="manualDate">
+    <button class="btn-save" onclick="setManualDate()">Appliquer cette date</button>
+  </div>
+
+  <div class="section">
+    <label for="recordInput">Modifier le record (jours) :</label>
+    <input type="number" id="recordInput" min="0">
+    <button class="btn-save" onclick="setRecord()">Appliquer ce record</button>
+  </div>
+
+  <div class="section">
+    <label>Aperçu du nouveau data.json :</label>
+    <div class="preview" id="preview">{}</div>
+    <button class="btn-download" id="btnDownload" onclick="downloadJson()">
+      TÉLÉCHARGER data.json
+    </button>
+  </div>
+
+  <div id="msg" class="msg"></div>
+
+  <div class="help">
+    <b>Comment publier les changements :</b><br>
+    1. Modifie les champs ci-dessus.<br>
+    2. Clique sur <b>TÉLÉCHARGER data.json</b>.<br>
+    3. Va sur GitHub, ouvre le fichier <code>data.json</code> du repo et remplace-le par celui téléchargé (drag &amp; drop).<br>
+    4. Commit. La pantalla se actualizará en 1-2 minutos automatiquement.
+  </div>
+</div>
+
+<script>
+  const DEFAULT_DATA = { ultimo_accidente: "2024-01-15", record: 120 };
+  let currentData = { ...DEFAULT_DATA };
+
+  async function loadInitial() {
+    try {
+      const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+      if (res.ok) currentData = await res.json();
+    } catch (e) {
+      console.warn('data.json introuvable, défauts utilisés');
+    }
+    refresh();
+  }
+
+  function formatFR(iso) {
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function daysSince(iso) {
+    const last = new Date(iso + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.floor((today - last) / 86400000));
+  }
+
+  function todayISO() {
+    const t = new Date();
+    const y = t.getFullYear();
+    const m = String(t.getMonth() + 1).padStart(2, '0');
+    const d = String(t.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function refresh() {
+    document.getElementById('currentDate').textContent = formatFR(currentData.ultimo_accidente);
+    document.getElementById('currentRecord').textContent = currentData.record;
+    document.getElementById('currentDays').textContent = daysSince(currentData.ultimo_accidente);
+    document.getElementById('manualDate').value = currentData.ultimo_accidente;
+    document.getElementById('recordInput').value = currentData.record;
+    document.getElementById('preview').textContent = JSON.stringify(currentData, null, 2);
+  }
+
+  function showMsg(text, ok) {
+    const m = document.getElementById('msg');
+    m.textContent = text;
+    m.className = 'msg ' + (ok ? 'ok' : 'err');
+    setTimeout(() => { m.className = 'msg'; }, 5000);
+  }
+
+  function registerToday() {
+    const today = todayISO();
+    const currentDays = daysSince(currentData.ultimo_accidente);
+    const newRecord = Math.max(currentData.record, currentDays);
+    const recordMsg = newRecord > currentData.record ? `\n\nNouveau record : ${newRecord} jours sera enregistré.` : '';
+
+    if (!confirm(`Confirmer l'enregistrement d'un accident en date du ${formatFR(today)} ?${recordMsg}`)) return;
+
+    currentData.ultimo_accidente = today;
+    currentData.record = newRecord;
+    refresh();
+    showMsg("Modification appliquée. Pense à télécharger et publier data.json.", true);
+  }
+
+  function setManualDate() {
+    const val = document.getElementById('manualDate').value;
+    if (!val) { showMsg("Veuillez choisir une date.", false); return; }
+    if (val > todayISO()) { showMsg("La date ne peut pas être dans le futur.", false); return; }
+
+    const currentDays = daysSince(currentData.ultimo_accidente);
+    const newRecord = Math.max(currentData.record, currentDays);
+    const recordMsg = newRecord > currentData.record ? `\n\nNouveau record : ${newRecord} jours sera enregistré.` : '';
+
+    if (!confirm(`Confirmer la date du dernier accident : ${formatFR(val)} ?${recordMsg}`)) return;
+
+    currentData.ultimo_accidente = val;
+    currentData.record = newRecord;
+    refresh();
+    showMsg("Modification appliquée. Pense à télécharger et publier data.json.", true);
+  }
+
+  function setRecord() {
+    const val = parseInt(document.getElementById('recordInput').value, 10);
+    if (isNaN(val) || val < 0) { showMsg("Valeur invalide.", false); return; }
+    if (!confirm(`Confirmer le record : ${val} jours ?`)) return;
+
+    currentData.record = val;
+    refresh();
+    showMsg("Modification appliquée. Pense à télécharger et publier data.json.", true);
+  }
+
+  function downloadJson() {
+    const json = JSON.stringify(currentData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'data.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showMsg("data.json téléchargé. Publie-le sur GitHub pour mettre à jour l'écran.", true);
+  }
+
+  loadInitial();
+</script>
+</body>
+</html>
